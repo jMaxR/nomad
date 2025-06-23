@@ -141,6 +141,10 @@ cmake -S . -B build/release
               
          To enable *Java* interface building (with Swig):
               cmake -DBUILD_INTERFACE_JAVA=ON -S . -B build/release
+              
+              ! Building requires to have the JDK (obviously) and SWIG (https://www.swig.org/).
+              
+              ! On *Linux*, the environment variable JAVA_HOME must be properly set.
 
 cmake --build build/release --config Release (for *Windows*)
 or
