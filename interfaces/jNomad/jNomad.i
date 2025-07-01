@@ -22,13 +22,8 @@
 %apply bool & INOUT { bool & count_eval };
 // %apply char **STRING_ARRAY { char **argv }
 
-
-
 // generate directors for class Evaluator
 %feature("director") Evaluator;
-
-%include "../../src/nomad_version.hpp"
-%include "../../src/nomad_platform.hpp"
 
 %{
 #include "Algos/Step.hpp"
@@ -46,12 +41,12 @@
 #include <locale.h>
 %}
 
+%include "../../src/nomad_version.hpp"
+%include "../../src/nomad_platform.hpp"
+
 %shared_ptr(NOMAD::AllParameters)
 %shared_ptr(NOMAD::EvalParameters)
 %shared_ptr(NOMAD::Evaluator)
-
-%template(EvalPointVector) std::vector<NOMAD::EvalPoint>;
-// %template(EvalPointList) std::list<NOMAD::EvalPoint>;
 
 namespace NOMAD{
 
@@ -66,7 +61,6 @@ namespace NOMAD{
       explicit ArrayOfDouble ( const size_t n = 0 , const NOMAD::Double & d = NOMAD::Double() );
       explicit ArrayOfDouble( const std::vector<double> & v) ;
       void set ( size_t j , const NOMAD::Double & v, bool relative = false, const NOMAD::Double & lb = NOMAD::Double(), const NOMAD::Double & ub = NOMAD::Double() );
-      NOMAD::Double& operator[](size_t i) const;
   };
 
 
@@ -76,32 +70,32 @@ namespace NOMAD{
       explicit Point ( const std::vector<double> & v) : ArrayOfDouble (v);
       void set ( size_t j , const NOMAD::Double & v, bool relative = false, const NOMAD::Double & lb = NOMAD::Double(), const NOMAD::Double & ub = NOMAD::Double() );
   };
+  
+  struct DLL_UTIL_API BBOutputType {
+    enum Type {
+      OBJ,        ///< Objective value
+      EB,         ///< Extreme barrier constraint
+      PB,         ///< Progressive barrier constraint
+      CNT_EVAL,   ///< Output set to 0 or 1 to count the blackbox evaluation or not
+      STAT_AVG, ///< Stat (average)
+      STAT_SUM, ///< Stat (sum)
+      BBO_UNDEFINED ///< Output ignored
+    };
+    typedef std::vector<BBOutputType> BBOutputTypeList;
+  };
 
-//  enum class DLL_UTIL_API BBOutputType
-//  {
-//    OBJ,        ///< Objective value
-//    EB,         ///< Extreme barrier constraint
-//    PB,         ///< Progressive barrier constraint
-//    CNT_EVAL,   ///< Output set to 0 or 1 to count the blackbox evaluation or not
-//    //STAT_AVG, ///< Stat (average)
-//    //STAT_SUM, ///< Stat (sum)
-//    BBO_UNDEFINED ///< Output ignored
-//  };
-  // %template(NomadBBOutputTypeList) std::list<BBOutputType>;
-
-
-//  enum class DLL_UTIL_API BBInputType
-//  {
-//    CONTINUOUS  ,     ///< Continuous variable (default) (R)
-//    ALL_CONTINUOUS  , ///< All variables are continuous variable (default, *R). Need a checkAndComply to set the BBInputTypeList.
-//    INTEGER     ,     ///< Integer variable (I)
-//    ALL_INTEGER ,     ///< All variables are integer (*I). Need a checkAndComply to set the BBInputTypeList.
-//    //CATEGORICAL ,   ///< Categorical variable          (C)
-//    BINARY         ,  ///< Binary variable               (B)
-//    ALL_BINARY       ///< All variables are binary (*B). Need a checkAndComply to set the BBInputTypeList.
-//  };
-  // %template(NomadBBInputTypeList) std::list<BBInputType>;
-
+  struct DLL_UTIL_API BBInputType {
+    enum Type {
+      CONTINUOUS  ,     ///< Continuous variable (default) (R)
+      ALL_CONTINUOUS  , ///< All variables are continuous variable (default, *R). Need a checkAndComply to set the BBInputTypeList.
+      INTEGER     ,     ///< Integer variable (I)
+      ALL_INTEGER ,     ///< All variables are integer (*I). Need a checkAndComply to set the BBInputTypeList.
+      CATEGORICAL ,   ///< Categorical variable          (C)
+      BINARY         ,  ///< Binary variable               (B)
+      ALL_BINARY       ///< All variables are binary (*B). Need a checkAndComply to set the BBInputTypeList.
+    };
+    typedef std::vector<BBInputType> BBInputTypeList;
+  };
 
   // Direction type
 //  enum class DLL_UTIL_API DirectionType
@@ -201,8 +195,8 @@ namespace NOMAD{
       %template(setAttributeValuePoint) setAttributeValue<Point>;
       %template(setAttributeValueBool) setAttributeValue<bool>;
       %template(setAttributeValueInt) setAttributeValue<int>;
-      // %template(setAttributeValueBBOutputTypeList) setAttributeValue<NomadBBOutputTypeList>;
-      // %template(setAttributeValueBBInputTypeList) setAttributeValue<NomadBBInputTypeList>;
+      %template(setAttributeValueBBOutputTypeList) setAttributeValue<NOMAD::BBOutputTypeList>;
+      %template(setAttributeValueBBInputTypeList) setAttributeValue<NOMAD::BBInputTypeList>;
       //%template(setAttributeValueDirectionTypeList) setAttributeValue<NomadDirectionTypeList>;
 
       const std::shared_ptr<NOMAD::EvalParameters>& getEvalParams() const;
@@ -319,5 +313,10 @@ namespace NOMAD{
   ) const {
     return $self->findBestInf(evalPointList);
   }
+}
 
+namespace std {
+  %template(EvalPointVector) vector<NOMAD::EvalPoint>;
+  %template(BBOutputTypeList) vector<NOMAD::BBOutputType>;
+  %template(BBInputTypeList) vector<NOMAD::BBInputType>;
 }
