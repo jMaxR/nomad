@@ -139,12 +139,17 @@ cmake -S . -B build/release
               ! On *Windows*, using Visual Studio, see the user guide or the readme
               to properly manage X86/X64 building of binaries. 
               
-         To enable *Java* interface building (with Swig):
+         To enable *Java* interface (jNomad) building:
               cmake -DBUILD_INTERFACE_JAVA=ON -S . -B build/release
-              
-              ! Building requires to have the JDK (obviously) and SWIG (https://www.swig.org/).
-              
-              ! On *Linux*, the environment variable JAVA_HOME must be properly set.
+
+              ! Before proceeding, have a look into 
+              $NOMAD_HOME/interfaces/jNomad/Readme
+
+              ! Building requires to have Swig (Simplified Wrapper and Interface Generator).
+              Swig can be obtained at https://www.swig.org/
+
+              ! A JAVA_HOME environment variable properly set may be required.
+              More info in $NOMAD_HOME/interfaces/jNomad/Readme
 
 cmake --build build/release --config Release (for *Windows*)
 or
