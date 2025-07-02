@@ -48,6 +48,9 @@
 %shared_ptr(NOMAD::EvalParameters)
 %shared_ptr(NOMAD::Evaluator)
 
+%ignore NOMAD::operator>>;
+%ignore NOMAD::operator<<;
+
 namespace NOMAD{
 
   class DLL_UTIL_API Double {
@@ -71,18 +74,9 @@ namespace NOMAD{
       void set ( size_t j , const NOMAD::Double & v, bool relative = false, const NOMAD::Double & lb = NOMAD::Double(), const NOMAD::Double & ub = NOMAD::Double() );
   };
   
-  struct DLL_UTIL_API BBOutputType {
-    enum Type {
-      OBJ,        ///< Objective value
-      EB,         ///< Extreme barrier constraint
-      PB,         ///< Progressive barrier constraint
-      CNT_EVAL,   ///< Output set to 0 or 1 to count the blackbox evaluation or not
-      STAT_AVG, ///< Stat (average)
-      STAT_SUM, ///< Stat (sum)
-      BBO_UNDEFINED ///< Output ignored
-    };
-    typedef std::vector<BBOutputType> BBOutputTypeList;
-  };
+  %rename("equals") BBOutputType::operator==;
+  %ignore BBOutputType::operator!=;
+  %include "../../src/Type/BBOutputType.hpp"
 
   struct DLL_UTIL_API BBInputType {
     enum Type {
@@ -164,7 +158,9 @@ namespace NOMAD{
       Eval* getEval(EvalType evalType) const;
 
   };
-
+  
+  %rename("$ignore") NOMAD::Parameters;
+  
   class DLL_UTIL_API EvalParameters : public NOMAD::Parameters {
     public:
 
@@ -196,7 +192,7 @@ namespace NOMAD{
       %template(setAttributeValueBool) setAttributeValue<bool>;
       %template(setAttributeValueInt) setAttributeValue<int>;
       %template(setAttributeValueBBOutputTypeList) setAttributeValue<NOMAD::BBOutputTypeList>;
-      %template(setAttributeValueBBInputTypeList) setAttributeValue<NOMAD::BBInputTypeList>;
+      //%template(setAttributeValueBBInputTypeList) setAttributeValue<NOMAD::BBInputTypeList>;
       //%template(setAttributeValueDirectionTypeList) setAttributeValue<NomadDirectionTypeList>;
 
       const std::shared_ptr<NOMAD::EvalParameters>& getEvalParams() const;
