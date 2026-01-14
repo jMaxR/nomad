@@ -62,16 +62,16 @@
  Ease the passage between sub-dimension and full dimension. Algorithm works in
  a sub dimentsion and does not know the full dimension.
  */
-class SubproblemManager
+class DLL_ALGO_API SubproblemManager
 {
 private:
     std::map<const Algorithm*, const Subproblem> _map;
 
 #ifdef _OPENMP
-    DLL_ALGO_API static omp_lock_t _mapLock;
+    static omp_lock_t _mapLock;
 #endif // _OPENMP
 
-    DLL_ALGO_API static std::unique_ptr<SubproblemManager> _single; ///< The singleton
+    static std::unique_ptr<SubproblemManager> _single; ///< The singleton
 
     bool updateSubproblemFixedVariable;
     
