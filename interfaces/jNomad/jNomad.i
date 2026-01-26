@@ -27,6 +27,8 @@
 // generate directors for class Evaluator
 %feature("director") Evaluator;
 
+
+
 %include "../../src/nomad_version.hpp"
 %include "../../src/nomad_platform.hpp"
 
@@ -42,9 +44,16 @@
 #include "Type/BBOutputType.hpp"
 #include "Type/DirectionType.hpp"
 #include "Type/EvalType.hpp"
+#include "Type/CallbackType.hpp"
 #include "Cache/CacheBase.hpp"
 #include <locale.h>
 %}
+
+%{
+#include <functional> // Include necessary header for std::function
+typedef std::function<void(const NOMAD::Step& step, bool &stop)> StepCbFunc; // StepCbFunc typedef
+%}
+
 
 %shared_ptr(NOMAD::AllParameters)
 %shared_ptr(NOMAD::EvalParameters)
@@ -53,8 +62,11 @@
 %template(EvalPointVector) std::vector<NOMAD::EvalPoint>;
 // %template(EvalPointList) std::list<NOMAD::EvalPoint>;
 
+%include "std_function.i" // To handle std::function
+
 namespace NOMAD{
 
+    
   class DLL_UTIL_API Double {
     public:
       Double ( double v );
@@ -143,6 +155,8 @@ namespace NOMAD{
       UNDEFINED           ///< Undefined: This value may be used when the
                           ///< EvalType is not mandatory
   };
+    
+    
 
   /// Enum for the type of Evaluator.
   enum class EvalXDefined
@@ -225,6 +239,8 @@ namespace NOMAD{
      protected:
       virtual void startImp() = 0 ;
    };
+    
+    typedef std::function<void(const Step& step, bool &stop)> StepCbFunc; // StepCbFunc typedef
 
   class DLL_ALGO_API MainStep : public Step
   {
@@ -236,6 +252,9 @@ namespace NOMAD{
       void addEvaluator(std::shared_ptr<Evaluator> ev);
 
       void displayHelp(const std::string& helpSubject = "all", bool devHelp = false);
+      
+      void addCallback(const CallbackType& callbackType,
+                             const StepCbFunc& stepCbFunc);
 
       static void resetComponentsBetweenOptimization();
 
