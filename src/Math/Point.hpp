@@ -150,11 +150,18 @@ public:
      * Ends up to lexicographic order. Not useful. Throw an exception.
      * Ignore warning about unused variable point
      */
+    /* Swig fails on this. Commented waiting for a better option 
     bool operator<(const Point &NOMAD_UNUSED(point)) const
+    C. Tribes Fix 23/01/2026
+    original was:
+    bool operator<(const Point &NOMAD_UNUSED(point)) const
+    */
+    bool operator<([[maybe_unused]] const Point & point) const
     {
         throw Exception(__FILE__,__LINE__,"Error: Attempting to use lexicographical order on a Point.");
     }
-
+   
+    
     /// Weak comparison operator.
     /**
      * This propriety must be met:
