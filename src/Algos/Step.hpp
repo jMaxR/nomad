@@ -421,8 +421,9 @@ private:
     virtual void incrementCounters() {};
 
     // Default callbacks. They do nothing.
-    static void defaultStepCB(const Step& NOMAD_UNUSED(step), bool &stop) { stop = false; }
-    static void defaultHotRestart(std::vector<std::string>& NOMAD_UNUSED(paramLines)) {};
+    // Modified to apply C. Tribes fix. See Point.hpp line c.154
+    static void defaultStepCB([[maybe_unused]] const Step& step, bool &stop) { stop = false; }
+    static void defaultHotRestart([[maybe_unused]] std::vector<std::string>& paramLines) {};
 
     /**
      Default task always executed when start() is called
