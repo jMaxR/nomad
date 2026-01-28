@@ -113,6 +113,7 @@ Eval/BBOutput.hpp
 Eval/ComparePriority.hpp
 Eval/ComputeSuccessType.hpp
 Eval/Eval.hpp
+Eval/EvalCallback.hpp
 Eval/EvalPoint.hpp
 Eval/EvalQueuePoint.hpp
 Eval/Evaluator.hpp

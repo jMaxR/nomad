@@ -72,7 +72,11 @@ NOMAD::EvalCallbackFunc<NOMAD::CallbackType::EVAL_STOP_CHECK> NOMAD::EvaluatorCo
 NOMAD::EvalCallbackFunc<NOMAD::CallbackType::EVAL_FAIL_CHECK> NOMAD::EvaluatorControl::_cbFailEvalCheck = NOMAD::EvaluatorControl::defaultEvalCB<>;
 bool NOMAD::EvaluatorControl::_cbFailEvalCheckIsDefault = true;
 
+
+std::unique_ptr<NOMAD::EvalCallback> NOMAD::EvaluatorControl::_cbEvalStopCheck2 = std::make_unique<NOMAD::DefaultEvalCallback>();
+
 std::shared_ptr<NOMAD::ComparePriorityMethod> NOMAD::EvaluatorControl::_userCompMethod = nullptr;
+
 
 
 // Template specializations (should be outside class)
@@ -125,6 +129,12 @@ void DLL_EVAL_API NOMAD::EvaluatorControl::addEvalCallback<NOMAD::CallbackType::
     _cbEvalStopCheck = evalCbFunc;
 }
 
+template<>
+void DLL_EVAL_API NOMAD::EvaluatorControl::addEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHECK>( std::unique_ptr<NOMAD::EvalCallback> evalCb)
+{
+    _cbEvalStopCheck2 = std::move(evalCb);
+}
+
 // Run Eval Callback
 /// \brief Template specialization. Run user fail eval check callback (no extra argument)
 template<>
@@ -156,6 +166,9 @@ void NOMAD::EvaluatorControl::runEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHE
 {
     globalStop = false;
     _cbEvalStopCheck(evalQueuePoint, globalStop);
+    
+    if (!globalStop && _cbEvalStopCheck2)
+        _cbEvalStopCheck2->call(evalQueuePoint, globalStop);
 }
 
 

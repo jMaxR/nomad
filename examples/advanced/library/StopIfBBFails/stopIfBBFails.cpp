@@ -95,25 +95,27 @@ void initAllParams(const std::shared_ptr<NOMAD::AllParameters>& allParams)
 }
 
 
-/*------------------------------------------------------------------------*/
-/* After failed evaluation check if eval point is ok, call for stop if not*/
-/*------------------------------------------------------------------------*/
-void customEvalStopCB( NOMAD::EvalQueuePointPtr & evalQueuePoint, bool & globalStop)
+// My callback class for stopping
+class MyEvalCallback : public NOMAD::EvalCallback
 {
-    globalStop = false;
-    if (nullptr != evalQueuePoint)
+
+    void call(NOMAD::EvalQueuePointPtr &evalQueuePoint, bool & globalStop) const override
     {
-        auto eval = evalQueuePoint->getEval(NOMAD::EvalType::BB);
-        if ( nullptr != eval )
+        globalStop = false;
+        if (nullptr != evalQueuePoint)
         {
-            // The eval_ok is set according to eval status returned by bb and also the outputs. For example, Styrene always returns a valid status but the output can contain some error message. This will make the eval status not eval ok.
-            if (eval->getEvalStatus() != NOMAD::EvalStatusType::EVAL_OK)
+            auto eval = evalQueuePoint->getEval(NOMAD::EvalType::BB);
+            if ( nullptr != eval )
             {
-                globalStop = true;
+                // The eval_ok is set according to eval status returned by bb and also the outputs. For example, Styrene always returns a valid status but the output can contain some error message. This will make the eval status not eval ok.
+                if (eval->getEvalStatus() != NOMAD::EvalStatusType::EVAL_OK)
+                {
+                    globalStop = true;
+                }
             }
         }
     }
-}
+};
 
 
 /*------------------------------------------*/
@@ -128,12 +130,9 @@ int main()
     initAllParams(params);
     TheMainStep.setAllParameters(params);
     
-    // Link callback function with user function defined locally
-    NOMAD::EvalCallbackFunc<NOMAD::CallbackType::EVAL_STOP_CHECK> cbFailCheck = customEvalStopCB;
-    
-    // Add callback function for eval check and management.
-    NOMAD::EvcInterface::getEvaluatorControl()->addEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHECK>(cbFailCheck);
-
+    // Add eval callback for evaluator control
+    std::unique_ptr<NOMAD::EvalCallback> myEvalCallback = std::make_unique<MyEvalCallback>();
+    NOMAD::EvcInterface::getEvaluatorControl()->addEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHECK>(std::move(myEvalCallback));
     
     // The run
     TheMainStep.start();

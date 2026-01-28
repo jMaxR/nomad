@@ -59,6 +59,7 @@
 #include "../Eval/SuccessStats.hpp"
 #include "../Eval/ComparePriority.hpp"
 #include "../Eval/EvalQueuePoint.hpp"
+#include "../Eval/EvalCallback.hpp"
 #include "../Eval/EvcMainThreadInfo.hpp"
 #include "../Param/EvaluatorControlGlobalParameters.hpp"
 #include "../Type/EvalSortType.hpp"
@@ -323,6 +324,9 @@ private:
 
     // Flag to indicate if callback for eval fail check has been set by user
     static bool _cbFailEvalCheckIsDefault;
+    
+    // Callback class object for eval stop check
+    static std::unique_ptr<EvalCallback> _cbEvalStopCheck2;
 
 #ifdef TIME_STATS
     double _evalTime;  ///< Total time spent running evaluations
@@ -341,6 +345,7 @@ public:
         _cbPostEvalUpdate = NOMAD::EvaluatorControl::defaultEvalCB<>;
         _cbEvalStopCheck = NOMAD::EvaluatorControl::defaultEvalCB<bool&>;
         _cbFailEvalCheck = NOMAD::EvaluatorControl::defaultEvalCB<>;
+        _cbEvalStopCheck2 = std::make_unique<DefaultEvalCallback>();
     }
 
     /// Constructor
@@ -754,6 +759,10 @@ public:
     template<CallbackType type>
     void DLL_EVAL_API addEvalCallback(const NOMAD::EvalCallbackFunc<type>& evalCbFunc, bool);
     // Template specializations in .cpp
+    
+    // Function to add an EvalCallback object 
+    template<CallbackType type>
+    void DLL_EVAL_API addEvalCallback(std::unique_ptr<NOMAD::EvalCallback> evalCb);
 
     /// Update local variables
     /**
