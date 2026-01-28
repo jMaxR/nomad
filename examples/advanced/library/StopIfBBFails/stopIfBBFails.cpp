@@ -132,7 +132,7 @@ int main()
     
     // Add eval callback for evaluator control
     std::unique_ptr<NOMAD::EvalCallback> myEvalCallback = std::make_unique<MyEvalCallback>();
-    NOMAD::EvcInterface::getEvaluatorControl()->addEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHECK>(std::move(myEvalCallback));
+    TheMainStep.addEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHECK>(std::move(myEvalCallback));
     
     // The run
     TheMainStep.start();

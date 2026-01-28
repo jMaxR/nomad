@@ -138,6 +138,15 @@ public:
      */
     void setEvaluator(const EvaluatorPtr& ev);
     
+    /**
+     The eval callbacks are managed and called by evaluator control
+     Let's use the main step (always needed in lib mode) to transfer the EvalCallback.
+     */
+    template<CallbackType type>
+    void addEvalCallback(std::unique_ptr<EvalCallback> cbEval)
+    {
+        NOMAD::EvcInterface::getEvaluatorControl()->addEvalCallback<type>(std::move(cbEval));
+    }
     
     /// Get the run flag of the execution (success or type of fail)
     /**
