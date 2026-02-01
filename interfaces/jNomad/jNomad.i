@@ -17,15 +17,16 @@
 %apply bool & INOUT { bool & rel };
 %apply bool & INOUT { bool & stop };
 
-// %apply char **STRING_ARRAY { char **argv }
-
 // generate directors for class Evaluator
 %feature("director") Evaluator;
+%feature("director") EvalCallback;
 
 %{
 #include "Algos/Step.hpp"
 #include "Algos/MainStep.hpp"
 #include "Eval/Evaluator.hpp"
+#include "Eval/EvalCallback.hpp"
+#include "Eval/EvalQueuePoint.hpp"
 #include "Param/Parameters.hpp"
 #include "Param/AllParameters.hpp"
 #include "Param/EvalParameters.hpp"
@@ -51,6 +52,7 @@
 %shared_ptr(NOMAD::AllParameters)
 %shared_ptr(NOMAD::EvalParameters)
 %shared_ptr(NOMAD::Evaluator)
+%shared_ptr(NOMAD::EvalCallback)
 
 %rename("equals") *::operator==;
 %rename("notEquals") *::operator!=;
@@ -76,7 +78,6 @@
 namespace NOMAD{
   %ignore Double::NotDefined;
   %ignore Double::InvalidValue;
-//  %ignore Double::operator<<; // Pb with C++ friend operator src/Math/Double.hpp:430
   %ignore Double::operator+=;
   %ignore Double::operator-=;
   %ignore Double::operator-=;
@@ -97,9 +98,8 @@ namespace NOMAD{
   %include "../../src/Type/EvalType.hpp"
   %include "../../src/Type/EvalSortType.hpp"
   %include "../../src/Type/CallbackType.hpp"
-
-  typedef std::function<void(const Step& step, bool &stop)> StepCbFunc;  // Type definitions for callback functions at the end of a step.
-  typedef std::function<void(std::vector<std::string>& paramLines)> HotRestartCbFunc; // may be useful at some point
+  
+  typedef std::shared_ptr<EvalQueuePoint> EvalQueuePointPtr;
 
   class DLL_UTIL_API Parameters {
     protected:
@@ -155,6 +155,11 @@ namespace NOMAD{
       const Point* getX() const;
     };
 
+    class EvalQueuePoint : public EvalPoint{
+      public:
+        explicit EvalQueuePoint(const EvalPoint& evalPoint, EvalType evalType): EvalPoint(evalPoint);
+    };
+    
   /// Enum for the type of Evaluator.
   enum class EvalXDefined
   {
@@ -174,6 +179,27 @@ namespace NOMAD{
       // virtual bool eval_x ( std::list<NOMAD::EvalPoint *> &x , const NOMAD::Double & h_max, std::list<bool> & count_eval ) {};
   };
 
+  class EvalCallback {
+    public:
+      EvalCallback() = default;
+      virtual ~EvalCallback() = default;
+
+      EvalCallback(const EvalCallback&) = delete;
+      EvalCallback& operator=(const EvalCallback&) = delete;
+
+      virtual void call(NOMAD::EvalQueuePointPtr & evalQueuePoint, bool& stop) const = 0;
+  };
+
+  /// Success type of a step.
+  enum class SuccessType {
+    UNDEFINED,          ///< Default type set at start
+    NO_TRIALS,          ///< No trial points produced
+    UNSUCCESSFUL,       ///< Trial point is not a success
+    PARTIAL_SUCCESS,    ///< Partial success (improving). Found an infeasible
+    ///< solution with a better h. f is worse.
+    FULL_SUCCESS        ///< Full success (dominating)
+  };
+  
   class DLL_ALGO_API Step {
     public:
        explicit Step();
@@ -186,7 +212,7 @@ namespace NOMAD{
       virtual void startImp() = 0 ;
    };
 
-    typedef std::function<void(const Step& step, bool &stop)> StepCbFunc; // StepCbFunc typedef
+  typedef std::function<void(const Step& step, bool &stop)> StepCbFunc; // StepCbFunc typedef
 
   class DLL_ALGO_API MainStep : public Step {
     public:
@@ -196,16 +222,9 @@ namespace NOMAD{
 
       void addEvaluator(std::shared_ptr<Evaluator> ev);
 
- //     %callback("%s");
-//      void userIterationCallback(Step step, bool & stop);
-//      %nocallback;
-
       void 	addCallback (CallbackType callBackType, StepCbFunc  userIterationCallback);
 
       void displayHelp(const std::string& helpSubject = "all", bool devHelp = false);
-
-      void addCallback(const CallbackType& callbackType,
-                             const StepCbFunc& stepCbFunc);
 
       static void resetComponentsBetweenOptimization();
 
