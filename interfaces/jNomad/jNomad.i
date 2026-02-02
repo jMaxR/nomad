@@ -5,6 +5,7 @@
 %include <std_set.i>
 %include <std_list.i>
 %include <std_shared_ptr.i>
+%include <std_unique_ptr.i>
 %include <typemaps.i>
 %include <various.i>
 %include <enums.swg>
@@ -20,6 +21,7 @@
 // generate directors for class Evaluator
 %feature("director") Evaluator;
 %feature("director") EvalCallback;
+
 
 %{
 #include "Algos/Step.hpp"
@@ -52,7 +54,7 @@
 %shared_ptr(NOMAD::AllParameters)
 %shared_ptr(NOMAD::EvalParameters)
 %shared_ptr(NOMAD::Evaluator)
-%shared_ptr(NOMAD::EvalCallback)
+%unique_ptr(NOMAD::EvalCallback)
 
 %rename("equals") *::operator==;
 %rename("notEquals") *::operator!=;
@@ -222,6 +224,8 @@ namespace NOMAD{
       
       template<CallbackType type>
       void addEvalCallback(std::unique_ptr<EvalCallback> cbEval);
+      
+      %template(addEvalCallbackStopCheck) addEvalCallback<CallbackType::EVAL_STOP_CHECK>;
 
       void displayHelp(const std::string& helpSubject = "all", bool devHelp = false);
 
@@ -241,6 +245,7 @@ namespace NOMAD{
 
   DLL_UTIL_API std::string evalSortTypeToString(const EvalSortType& evalSortType);
 
+      
 }
 
 %extend NOMAD::Evaluator {
@@ -257,6 +262,7 @@ namespace NOMAD{
     }
     return evalOk;
   }
+    
 }
 
 %extend NOMAD::Eval {

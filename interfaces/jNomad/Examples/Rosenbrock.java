@@ -36,6 +36,7 @@ import jNomad.EvalPoint;
 import jNomad.EvalPointVector;
 import jNomad.EvalQueuePoint;
 import jNomad.EvalQueuePointPtr;
+import jNomad.CallbackType;
 import jNomad.EvalType;
 import jNomad.Evaluator;
 import jNomad.EvalCallback;
@@ -99,16 +100,12 @@ public class Rosenbrock {
 	}
 
 	public class MyEvalCallback extends EvalCallback {
-		public MyEvalCallback() {
-		}
 
 		public void call(EvalQueuePointPtr evalQueuePoint, boolean[] globalStop)
 		    {
-
-
-					globalStop[0] = true;
+					globalStop[0] = false;
 				}
-			}
+	}
 
 	public Rosenbrock(int argc, String argv[]) {
 		try {
@@ -160,8 +157,8 @@ public class Rosenbrock {
 			My_Evaluator ev = new My_Evaluator(p);
 			mainstep.addEvaluator(ev);
 
-      MyEvalCallback cb = new MyEvalCallback();
-			mainstep.addEvalCallback<CallbackType::EVAL_STOP_CHECK>(cb);
+      EvalCallback cb = new MyEvalCallback();
+			mainstep.addEvalCallbackStopCheck(cb);
 
 			mainstep.start();
 			mainstep.run();
