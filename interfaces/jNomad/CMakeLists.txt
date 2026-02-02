@@ -33,6 +33,8 @@ ${CMAKE_CURRENT_BINARY_DIR}/Eval.java
 ${CMAKE_CURRENT_BINARY_DIR}/EvalParameters.java
 ${CMAKE_CURRENT_BINARY_DIR}/EvalPoint.java
 ${CMAKE_CURRENT_BINARY_DIR}/EvalPointVector.java
+${CMAKE_CURRENT_BINARY_DIR}/EvalQueuePoint.java
+${CMAKE_CURRENT_BINARY_DIR}/EvalQueuePointPtr.java
 ${CMAKE_CURRENT_BINARY_DIR}/EvalType.java
 ${CMAKE_CURRENT_BINARY_DIR}/EvalSortType.java
 ${CMAKE_CURRENT_BINARY_DIR}/Evaluator.java

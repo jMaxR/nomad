@@ -184,9 +184,6 @@ DLL_UTIL_API BBOutputTypeList stringToBBOutputTypeList(const std::string &s);
  */
 DLL_UTIL_API std::string BBOutputTypeListToString ( const BBOutputTypeList & bbotList );
 
-///// Helper to test if a BBOutputType is a constraint (PB, EB, ....)
-DLL_UTIL_API bool BBOutputTypeIsConstraint(const BBOutputType & bbotType);
-
 /// Count the number of constraints
 DLL_UTIL_API size_t getNbConstraints(const BBOutputTypeList& bbotList);
 

@@ -212,8 +212,6 @@ namespace NOMAD{
       virtual void startImp() = 0 ;
    };
 
-  typedef std::function<void(const Step& step, bool &stop)> StepCbFunc; // StepCbFunc typedef
-
   class DLL_ALGO_API MainStep : public Step {
     public:
       explicit MainStep() ;
@@ -221,8 +219,9 @@ namespace NOMAD{
       void setAllParameters(const std::shared_ptr<AllParameters> & allParams);
 
       void addEvaluator(std::shared_ptr<Evaluator> ev);
-
-      void 	addCallback (CallbackType callBackType, StepCbFunc  userIterationCallback);
+      
+      template<CallbackType type>
+      void addEvalCallback(std::unique_ptr<EvalCallback> cbEval);
 
       void displayHelp(const std::string& helpSubject = "all", bool devHelp = false);
 
@@ -306,4 +305,5 @@ namespace std {
   %template(BBOutputTypeList) vector<NOMAD::BBOutputType>;
   %template(BBInputTypeList) vector<NOMAD::BBInputType>;
   %template(DirectionTypeList) vector<NOMAD::DirectionType>;
+  %template(EvalQueuePointPtr) shared_ptr<NOMAD::EvalQueuePoint>;
 }
