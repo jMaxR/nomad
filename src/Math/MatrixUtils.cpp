@@ -1162,7 +1162,7 @@ bool NOMAD::LDLt_decomposition ( std::string & error_msg,
         lambda = std::fabs(M[vr][k]);
         for (int j = k + 2; j < n; j++)
         {
-            if (abs(M[j][k]) > lambda)
+            if (std::abs(M[j][k]) > lambda)
             {
                 vr = int(j);
                 lambda = std::fabs(M[vr][k]);
@@ -1186,7 +1186,7 @@ bool NOMAD::LDLt_decomposition ( std::string & error_msg,
                     sigma = -1;
                     for (int i = k; i < n; i++)
                     {
-                        if (abs(M[i][r]) > sigma)
+                        if (std::abs(M[i][r]) > sigma)
                         {
                             sigma = std::fabs(M[i][r]); // σ = norm(A[k:n, r], Inf)
                         }
@@ -1367,7 +1367,7 @@ bool NOMAD::LDLt_decomposition ( std::string & error_msg,
                {
                     for (int j = k + s; j < n; j++)
                     {
-                        if (abs(M[i][j]) > val)
+                        if (std::abs(M[i][j]) > val)
                         {
                             val = std::fabs(M[i][j]);
                         }
