@@ -53,7 +53,6 @@ ${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_int.java
 ${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_std__vectorT_bool_t.java
 ${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_std__vectorT_double_t.java
 ${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_std__listT_std__string_t.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_std__shared_ptrT_EvalQueuePoint_t.java
 ${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_std__vectorT_std__shared_ptrT_${NOMAD_SRC_TEMPLATE}__EvalPoint_t_t.java
 )
 add_jar(jNomad_jar SOURCES ${SWIG_JAVA_FILES} OUTPUT_NAME "jNomad")

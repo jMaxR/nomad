@@ -22,7 +22,6 @@
 %feature("director") Evaluator;
 %feature("director") EvalCallback;
 
-
 %{
 #include "Algos/Step.hpp"
 #include "Algos/MainStep.hpp"
@@ -101,6 +100,7 @@ namespace NOMAD{
   %include "../../src/Type/EvalSortType.hpp"
   %include "../../src/Type/CallbackType.hpp"
   
+  class EvalQueuePointPtr{}; // Empty class required for creating a fully functional EvalQueuePointPtr.java class
   typedef std::shared_ptr<EvalQueuePoint> EvalQueuePointPtr;
 
   class DLL_UTIL_API Parameters {
@@ -160,9 +160,11 @@ namespace NOMAD{
     class EvalQueuePoint : public EvalPoint{
       public:
         explicit EvalQueuePoint(const EvalPoint& evalPoint, EvalType evalType): EvalPoint(evalPoint);
+        const EvalType& getEvalType() const;
+        const NOMAD::SuccessType& getSuccess() const;
     };
-    
-  /// Enum for the type of Evaluator.
+
+  // Enum for the type of Evaluator.
   enum class EvalXDefined
   {
     EVAL_BLOCK_DEFINED_BY_USER, ///< User redefined eval_block() in library mode; Default value
@@ -192,7 +194,7 @@ namespace NOMAD{
       virtual void call(NOMAD::EvalQueuePointPtr & evalQueuePoint, bool& stop) const = 0;
   };
 
-  /// Success type of a step.
+  // Success type of a step.
   enum class SuccessType {
     UNDEFINED,          ///< Default type set at start
     NO_TRIALS,          ///< No trial points produced
@@ -222,10 +224,9 @@ namespace NOMAD{
 
       void addEvaluator(std::shared_ptr<Evaluator> ev);
       
-      template<CallbackType type>
-      void addEvalCallback(std::unique_ptr<EvalCallback> cbEval);
+      template<CallbackType type> void addEvalCallback(std::unique_ptr<EvalCallback> cbEval);
       
-      %template(addEvalCallbackStopCheck) addEvalCallback<CallbackType::EVAL_STOP_CHECK>;
+     %template(addEvalCallbackStopCheck) addEvalCallback<CallbackType::EVAL_STOP_CHECK>;
 
       void displayHelp(const std::string& helpSubject = "all", bool devHelp = false);
 
@@ -244,8 +245,8 @@ namespace NOMAD{
   DLL_UTIL_API EvalSortType stringToEvalSortType(const std::string &s);
 
   DLL_UTIL_API std::string evalSortTypeToString(const EvalSortType& evalSortType);
-
-      
+  
+  // End of NOMAD namespace
 }
 
 %extend NOMAD::Evaluator {
@@ -311,5 +312,4 @@ namespace std {
   %template(BBOutputTypeList) vector<NOMAD::BBOutputType>;
   %template(BBInputTypeList) vector<NOMAD::BBInputType>;
   %template(DirectionTypeList) vector<NOMAD::DirectionType>;
-  %template(EvalQueuePointPtr) shared_ptr<NOMAD::EvalQueuePoint>;
 }
