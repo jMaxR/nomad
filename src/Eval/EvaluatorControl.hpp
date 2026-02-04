@@ -326,7 +326,7 @@ private:
     static bool _cbFailEvalCheckIsDefault;
     
     // Callback class object for eval stop check
-    static std::unique_ptr<EvalCallback> _cbEvalStopCheck2;
+    static std::shared_ptr<EvalCallback> _cbEvalStopCheck2;
 
 #ifdef TIME_STATS
     double _evalTime;  ///< Total time spent running evaluations
@@ -345,7 +345,7 @@ public:
         _cbPostEvalUpdate = NOMAD::EvaluatorControl::defaultEvalCB<>;
         _cbEvalStopCheck = NOMAD::EvaluatorControl::defaultEvalCB<bool&>;
         _cbFailEvalCheck = NOMAD::EvaluatorControl::defaultEvalCB<>;
-        _cbEvalStopCheck2 = std::make_unique<DefaultEvalCallback>();
+        _cbEvalStopCheck2 = std::make_shared<DefaultEvalCallback>();
     }
 
     /// Constructor
@@ -762,7 +762,7 @@ public:
     
     // Function to add an EvalCallback object 
     template<CallbackType type>
-    void DLL_EVAL_API addEvalCallback(std::unique_ptr<NOMAD::EvalCallback> evalCb);
+    void DLL_EVAL_API addEvalCallback(std::shared_ptr<NOMAD::EvalCallback> evalCb);
 
     /// Update local variables
     /**

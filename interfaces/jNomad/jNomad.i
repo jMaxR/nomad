@@ -53,7 +53,7 @@
 %shared_ptr(NOMAD::AllParameters)
 %shared_ptr(NOMAD::EvalParameters)
 %shared_ptr(NOMAD::Evaluator)
-%unique_ptr(NOMAD::EvalCallback)
+%shared_ptr(NOMAD::EvalCallback)
 
 %rename("equals") *::operator==;
 %rename("notEquals") *::operator!=;
@@ -99,7 +99,7 @@ namespace NOMAD{
   %include "../../src/Type/EvalType.hpp"
   %include "../../src/Type/EvalSortType.hpp"
   %include "../../src/Type/CallbackType.hpp"
-  
+
   class EvalQueuePointPtr{}; // Empty class required for creating a fully functional EvalQueuePointPtr.java class
   typedef std::shared_ptr<EvalQueuePoint> EvalQueuePointPtr;
 
@@ -203,7 +203,7 @@ namespace NOMAD{
     ///< solution with a better h. f is worse.
     FULL_SUCCESS        ///< Full success (dominating)
   };
-  
+
   class DLL_ALGO_API Step {
     public:
        explicit Step();
@@ -223,9 +223,9 @@ namespace NOMAD{
       void setAllParameters(const std::shared_ptr<AllParameters> & allParams);
 
       void addEvaluator(std::shared_ptr<Evaluator> ev);
-      
-      template<CallbackType type> void addEvalCallback(std::unique_ptr<EvalCallback> cbEval);
-      
+
+      template<CallbackType type> void addEvalCallback(std::shared_ptr<EvalCallback> cbEval);
+
      %template(addEvalCallbackStopCheck) addEvalCallback<CallbackType::EVAL_STOP_CHECK>;
 
       void displayHelp(const std::string& helpSubject = "all", bool devHelp = false);
@@ -245,7 +245,7 @@ namespace NOMAD{
   DLL_UTIL_API EvalSortType stringToEvalSortType(const std::string &s);
 
   DLL_UTIL_API std::string evalSortTypeToString(const EvalSortType& evalSortType);
-  
+
   // End of NOMAD namespace
 }
 
@@ -263,7 +263,7 @@ namespace NOMAD{
     }
     return evalOk;
   }
-    
+
 }
 
 %extend NOMAD::Eval {

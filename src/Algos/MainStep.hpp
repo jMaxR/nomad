@@ -143,9 +143,9 @@ public:
      Let's use the main step (always needed in lib mode) to transfer the EvalCallback.
      */
     template<CallbackType type>
-    void addEvalCallback(std::unique_ptr<EvalCallback> cbEval)
+    void addEvalCallback(std::shared_ptr<EvalCallback> cbEval)
     {
-        NOMAD::EvcInterface::getEvaluatorControl()->addEvalCallback<type>(std::move(cbEval));
+        NOMAD::EvcInterface::getEvaluatorControl()->addEvalCallback<type>(cbEval);
     }
     
     /// Get the run flag of the execution (success or type of fail)

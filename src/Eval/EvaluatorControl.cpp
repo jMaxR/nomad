@@ -73,7 +73,7 @@ NOMAD::EvalCallbackFunc<NOMAD::CallbackType::EVAL_FAIL_CHECK> NOMAD::EvaluatorCo
 bool NOMAD::EvaluatorControl::_cbFailEvalCheckIsDefault = true;
 
 
-std::unique_ptr<NOMAD::EvalCallback> NOMAD::EvaluatorControl::_cbEvalStopCheck2 = std::make_unique<NOMAD::DefaultEvalCallback>();
+std::shared_ptr<NOMAD::EvalCallback> NOMAD::EvaluatorControl::_cbEvalStopCheck2 = std::make_shared<NOMAD::DefaultEvalCallback>();
 
 std::shared_ptr<NOMAD::ComparePriorityMethod> NOMAD::EvaluatorControl::_userCompMethod = nullptr;
 
@@ -130,9 +130,9 @@ void DLL_EVAL_API NOMAD::EvaluatorControl::addEvalCallback<NOMAD::CallbackType::
 }
 
 template<>
-void DLL_EVAL_API NOMAD::EvaluatorControl::addEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHECK>( std::unique_ptr<NOMAD::EvalCallback> evalCb)
+void DLL_EVAL_API NOMAD::EvaluatorControl::addEvalCallback<NOMAD::CallbackType::EVAL_STOP_CHECK>( std::shared_ptr<NOMAD::EvalCallback> evalCb)
 {
-    _cbEvalStopCheck2 = std::move(evalCb);
+    _cbEvalStopCheck2 = evalCb;
 }
 
 // Run Eval Callback
