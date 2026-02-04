@@ -25,12 +25,12 @@
 ** The fact that you are presently reading this means that you have had
 ** knowledge of the CeCILL-C license and that you accept its terms.
 */
-
-package org.ica.cosmo;
-
 import static java.lang.Math.pow;
+import static java.lang.Math.abs;
 
 /*
+This example demonstrate how to use a custom criterion to stop the optimization.
+
 Optimization of the mass of an I-beam. The length of the beam is L = 1 m, and its W-section is defined by the following variables:
 	- width b
 	- height h
@@ -91,14 +91,16 @@ import jNomad.CacheBase;
 import jNomad.CallbackType;
 import jNomad.Double;
 import jNomad.Eval;
+import jNomad.EvalCallback;
 import jNomad.EvalPoint;
 import jNomad.EvalPointVector;
+import jNomad.EvalQueuePoint;
+import jNomad.EvalQueuePointPtr;
 import jNomad.EvalType;
 import jNomad.Evaluator;
 import jNomad.MainStep;
 import jNomad.Point;
 import jNomad.Step;
-import jNomad.SWIGTYPE_p_StepCbFunc;
 
 public class OptimIBeam {
 	static {
@@ -132,22 +134,9 @@ public class OptimIBeam {
 		private final double F = 1000; // N
 		private final double rho = 2700; // kg/m^3
 
-		// custom stopping criterion variables
-		/*
-		  private int last_succes_index;
-		  private double[] bestX = new double[4]
-		  private double minGain = 1E-3; // the minimal gain for any of the variables to validate a better solution
-		  private int maxBBeval = 20; // maximal number of BB evaluation allowed to find a better solution
-		*/  
 
 		public My_Evaluator(AllParameters p) {
 			super(p.getEvalParams(), EvalType.BB);
-			// custom stopping criterion variables
-			/*
-			for (int i=0 ; i<4 ; i++) {
-				bestX[i] = java.lang.Double.MAX_VALUE;
-			}
-			*/
 		}
 
 		public boolean eval_x(EvalPoint x, Double h_max, boolean[] count_eval) {
@@ -175,38 +164,44 @@ public class OptimIBeam {
 			x.setBBO(bbo);
 			count_eval[0] = true;
 
-			// custom stopping criterion variables
-			/*
-				int index = mads.get_stats().get_bb_eval() + 1;
-				if (index - last_succes_index > maxBBeval) {
-					Mads.force_quit(0);
-				}
-			*/
 			return true;
 		}
 
+	}
+
+	public class My_EvalCallback extends EvalCallback {
 		// custom stopping criterion variables
-		/*
-		  public void update_success(Stats stats, Eval_Point x) {
-		  	int index = stats.get_bb_eval() + 1;
-		  	boolean isBetter = false;
-		  	
-		  	for(int i=0 ; i<4 ; i++){
-		  		if(Math.fabs(x.value(i)-bestX[i]) > minGain){
-		  			// le gain est suffisant pour être comptabilisé comme un progrès
-		  			isBetter = true;
-		  			break;
-		  		}
-		  	}
-		  	
-		  	if(isBetter){
-		  		this.last_succes_index = index;
-		  		for(int i=0 ; i<4 ; i++){
-		  			bestX[i] = x.value(i);
-		  		}
-		  	}
-		  }
-		 */
+		private int eval_counter = 0;
+		private int last_succes_index;
+		private double[] bestX = new double[4];
+		private double minGain = 0.001; // the minimal gain for any of the variables to validate a better solution
+		private int maxBBeval = 20; // maximal number of BB evaluation allowed to find a better solution
+		
+		public My_EvalCallback() {
+			super();
+			// custom stopping criterion variables
+			for (int i = 0; i < 4; i++) {
+				bestX[i] = java.lang.Double.MAX_VALUE;
+			}
+		}
+		 
+		public void call(EvalQueuePointPtr evalQueuePointPtr, boolean[] stop) {
+			eval_counter++;
+			EvalQueuePoint evalQueuePoint = evalQueuePointPtr.get();
+			Point p = evalQueuePoint.getX();
+			boolean cont = false;
+			for (int i=0 ; i<4 ; i++) {
+				double value = p.get(i).todouble(); 
+				if(abs(value-bestX[i]) > minGain) {
+						cont = true;
+						last_succes_index = eval_counter;
+						bestX[i] = value; 
+				}
+			}
+			
+			if(eval_counter - last_succes_index > maxBBeval && cont == false)
+				stop[0] = true;
+		 }
 	}
 
 	private void initAllParams(AllParameters p) {
@@ -298,9 +293,8 @@ public class OptimIBeam {
 			My_Evaluator ev = new My_Evaluator(p);
 			mainstep.addEvaluator(ev);
 			
-			SWIGTYPE_p_StepCbFunc userIterationCallback;
-				
-			mainstep.addCallback(CallbackType.MEGA_ITERATION_END, userIterationCallback);
+			My_EvalCallback cb = new My_EvalCallback();
+			mainstep.addEvalCallbackStopCheck(cb);
 
 			mainstep.start();
 			mainstep.run();
@@ -314,7 +308,7 @@ public class OptimIBeam {
 
 			for (int i = 0; i < bestFeas.size(); i++) {
 				EvalPoint ep = bestFeas.get(i);
-				System.out.print("Solution : ");
+				System.out.print("\nSolution : ");
 				double var;
 				String[] lbl = new String[] { "b", "h", "s", "a" };
 				for (int j = 0; j < ep.size(); j++) {
@@ -324,7 +318,7 @@ public class OptimIBeam {
 				System.out.println();
 				Eval eval = ep.getEval(EvalType.BB);
 				double mass = eval.getObjective().todouble();
-				System.out.printf("Mass = %.3f kg", mass);
+				System.out.printf("Mass = %.3f kg\n", mass);
 			}
 
 		} catch (RuntimeException e) {
