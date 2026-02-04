@@ -100,7 +100,11 @@ namespace NOMAD{
   %include "../../src/Type/EvalSortType.hpp"
   %include "../../src/Type/CallbackType.hpp"
 
-  class EvalQueuePointPtr{}; // Empty class required for creating a fully functional EvalQueuePointPtr.java class
+  // Class required for creating a fully functional EvalQueuePointPtr.java class
+  class EvalQueuePointPtr{
+    public:
+      NOMAD::EvalQueuePoint* get();
+  }; 
   typedef std::shared_ptr<EvalQueuePoint> EvalQueuePointPtr;
 
   class DLL_UTIL_API Parameters {
