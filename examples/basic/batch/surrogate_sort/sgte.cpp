@@ -83,7 +83,7 @@ int main(int argc, char **argv)
         {
             for (int i = 0; i < n ; i++)
             {
-                f  += abs(x[i]);
+                f  += std::abs(x[i]);
             }
         }
         catch (std::exception &e)
